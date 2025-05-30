@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Anime Explorer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap 5 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Basic Layout */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .wrapper {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+    /* Themes */
+    body.day {
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+    body.night {
+      background-color: #212529;
+      color: #f8f9fa;
+    }
+    /* Header & Footer */
+    header, footer {
+      background-color: #333;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+    }
+    .container-main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 15px;
+    }
+    /* Controls */
+    .search-controls, .controls, .search-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .search-controls input[type="text"],
+    .search-container input[type="text"] {
+      width: 60%;
+      max-width: 500px;
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .search-controls button, 
+    .search-container button,
+    .controls button {
+      margin: 0 5px;
+    }
+    /* Anime Cards - Uniform; 4 per row */
+    .anime-card {
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0.25rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      padding: 15px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .anime-card img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      object-fit: cover;
+    }
+    .anime-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+    .anime-card p {
+      font-size: 0.9rem;
+    }
+    /* Night Mode */
+    body.night .anime-card {
+      background-color: #343a40;
+      border: 1px solid #495057;
+      color: #f8f9fa;
+    }
+    body.night .modal-content {
+      background-color: #343a40;
+      color: #f8f9fa;
+    }
+    /* Chart */
+    #chartContainer {
+      margin-bottom: 20px;
+      height: 300px;
+      position: relative;
+    }
+    /* Pagination */
+    #paginationContainer {
+      margin-top: 20px;
+      text-align: center;
+    }
+    /* Modal Full Screen */
+    .modal-fullscreen {
+      /* Bootstrap 5 provides this class */
+    }
+    /* Footer */
+    footer {
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="day">
+  <div class="wrapper">
+    <!-- HEADER -->
+    <header>
+      <div class="container d-flex justify-content-between align-items-center">
+        <h1 class="m-0">Anime Explorer</h1>
+        <div>
+          <label for="themeToggle" class="form-check-label me-2">Tema</label>
+          <input type="checkbox" id="themeToggle" class="form-check-input">
+          <span id="themeText">Day</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- MAIN CONTENT -->
+    <div class="content container-main">
+      <!-- Search Controls -->
+      <div class="search-controls">
+        <input type="text" id="queryInput" placeholder="Cerca Anime per Titolo...">
+        <button id="btnSearch" class="btn btn-primary">Cerca</button>
+        <button id="btnTop" class="btn btn-success">Top Anime</button>
+      </div>
+      
+      <!-- Sorting Controls -->
+      <div class="controls">
+        <button id="btnScore" class="btn btn-warning">Ordina per Punteggio</button>
+        <button id="btnTitle" class="btn btn-info">Ordina per Titolo</button>
+        <button id="btnEpisodes" class="btn btn-secondary">Ordina per Episodi</button>
+      </div>
+      
+      <!-- Chart Container -->
+      <div id="chartContainer" class="mb-4">
+        <canvas id="animeChart"></canvas>
+      </div>
+      
+      <!-- Anime Cards Container (4 per row, paginazione 20 risultati per pagina) -->
+      <div id="animeContainer" class="row"></div>
+      
+      <!-- Pagination -->
+      <nav>
+        <ul id="paginationContainer" class="pagination justify-content-center"></ul>
+      </nav>
+      
+      <!-- List View Search -->
+      <div class="search-container">
+        <input type="text" id="eventSearchInput" class="form-control" placeholder="Search events...">
+        <button id="eventSearchBtn" class="btn btn-secondary mt-2">Search</button>
+      </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <footer>
+      <p>Realizzato da Bocaletto Luca © <span id="currentYear"></span></p>
+    </footer>
+  </div>
+  
+  <!-- FULLSCREEN DETAIL MODAL -->
+  <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailModalLabel">Dettaglio Anime</h5>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+        </div>
+        <div class="modal-body" id="modalBodyContent">
+          <!-- Contenuto dettagliato caricato dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bootstrap Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- MAIN JS -->
+  <script>
+    /***********************************************
+     * Anime Explorer – Final One-Page Application
+     * Using Jikan API (free & open; accumulating up to ~400 results)
+     * Layout: 4 cards per row, 20 results per page.
+     * Sorting, search, pagination and full-screen detail modal ("Leggi di più") implemented.
+     * Author: Bocaletto Luca
+     ***********************************************/
+    document.addEventListener("DOMContentLoaded", function() {
+      // GLOBAL VARIABLES
+      let animeData = [];
+      let currentSortedData = [];
+      let currentPage = 1;
+      const pageSize = 20;
+      let animeChart;
+      
+      // Set current year in footer
+      document.getElementById("currentYear").textContent = new Date().getFullYear();
+      
+      // Theme Toggle
+      const themeToggle = document.getElementById("themeToggle");
+      const themeText = document.getElementById("themeText");
+      themeToggle.addEventListener("change", function() {
+        if (this.checked) {
+          document.body.classList.replace("day", "night");
+          themeText.textContent = "Night";
+        } else {
+          document.body.classList.replace("night", "day");
+          themeText.textContent = "Day";
+        }
+      });
+      
+      /* ===== API FUNCTIONS ===== */
+      // Implementa il caricamento dei Top Anime combinando più pagine (fino a 400 risultati)
+      async function loadTopAnime() {
+        try {
+          let page = 1, results = [];
+          // Itera finché abbiamo meno di 400 risultati oppure finché la pagina non torna dati vuoti
+          while(page <= 16) { // 16*25 = 400 (25 è il default per Jikan v4)
+            const response = await fetch("https://api.jikan.moe/v4/top/anime?page=" + page);
+            if (!response.ok) {
+              console.error("Errore nella pagina " + page + ": " + response.status);
+              break;
+            }
+            const data = await response.json();
+            if(data.data.length === 0) break;
+            results = results.concat(data.data);
+            page++;
+          }
+          animeData = results;
+          sortByScore();
+        } catch (error) {
+          console.error(error);
+          document.getElementById("animeContainer").innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+        }
+      }
+      
+      // Search Anime by Title using Jikan API
+      async function searchAnime(query) {
+        try {
+          const response = await fetch("https://api.jikan.moe/v4/anime?q=" + encodeURIComponent(query) + "&limit=25");
+          if (!response.ok) throw new Error("Errore nella ricerca: " + response.status);
+          const data = await response.json();
+          animeData = data.data;
+          sortByScore();
+        } catch (error) {
+          console.error(error);
+          document.getElementById("animeContainer").innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+        }
+      }
+      
+      /* ===== Sorting FUNCTIONS ===== */
+      function sortByScore() {
+        const sorted = animeData.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
+        updateSortedData(sorted);
+      }
+      function sortByTitle() {
+        const sorted = animeData.slice().sort((a, b) => a.title.localeCompare(b.title));
+        updateSortedData(sorted);
+      }
+      function sortByEpisodes() {
+        const sorted = animeData.slice().sort((a, b) => (b.episodes || 0) - (a.episodes || 0));
+        updateSortedData(sorted);
+      }
+      
+      function updateSortedData(sortedArray) {
+        currentSortedData = sortedArray;
+        currentPage = 1;
+        displayPage();
+        updateChart(sortedArray);
+      }
+      
+      /* ===== PAGINATION ===== */
+      function displayPage() {
+        const startIdx = (currentPage - 1) * pageSize;
+        const pageData = currentSortedData.slice(startIdx, startIdx + pageSize);
+        displayAnimeCards(pageData);
+        generatePagination(currentSortedData.length);
+      }
+      
+      function generatePagination(totalItems) {
+        const totalPages = Math.ceil(totalItems / pageSize);
+        let html = "";
+        if (totalPages <= 1) {
+          document.getElementById("paginationContainer").innerHTML = "";
+          return;
+        }
+        html += `<li class="page-item ${currentPage === 1 ? "disabled" : ""}">
+                   <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Prev</a>
+                 </li>`;
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<li class="page-item ${currentPage === i ? "active" : ""}">
+                     <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                   </li>`;
+        }
+        html += `<li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
+                   <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+                 </li>`;
+        document.getElementById("paginationContainer").innerHTML = html;
+      }
+      
+      window.changePage = function(page) {
+        currentPage = page;
+        displayPage();
+      }
+      
+      /* ===== Display Anime Cards (4 columns layout) ===== */
+      function displayAnimeCards(dataArray) {
+        const container = document.getElementById("animeContainer");
+        container.innerHTML = "";
+        if (dataArray.length === 0) {
+          container.innerHTML = "<p class='text-center'>Nessun anime trovato.</p>";
+          return;
+        }
+        const row = document.createElement("div");
+        row.className = "row";
+        dataArray.forEach(anime => {
+          const title = anime.title || "N/D";
+          const imageUrl = (anime.images && anime.images.jpg && anime.images.jpg.image_url) || "https://via.placeholder.com/120";
+          const score = anime.score || "N/D";
+          const episodes = anime.episodes || "N/D";
+          let synopsis = anime.synopsis ? anime.synopsis.substring(0, 200) + "..." : "Descrizione non disponibile.";
+          const col = document.createElement("div");
+          col.className = "col-md-3";
+          col.innerHTML = `
+            <div class="anime-card h-100">
+              <img src="${imageUrl}" alt="${escapeHtml(title)}">
+              <div class="card-body">
+                <h4>${escapeHtml(title)}</h4>
+                <p><strong>Punteggio:</strong> ${score}</p>
+                <p><strong>Episodi:</strong> ${episodes}</p>
+                <p>${escapeHtml(synopsis)}</p>
+                <button class="btn btn-sm btn-secondary" onclick="loadAnimeDetails('${anime.mal_id}')">Leggi di più</button>
+              </div>
+            </div>
+          `;
+          row.appendChild(col);
+        });
+        container.appendChild(row);
+      }
+      
+      /* ===== Chart Update (Top 10 per Score) ===== */
+      function updateChart(dataArray) {
+        const top10 = dataArray.slice().sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0,10);
+        const labels = top10.map(a => a.title.substring(0,20) + (a.title.length > 20 ? "..." : ""));
+        const scores = top10.map(a => a.score || 0);
+        const ctx = document.getElementById("animeChart").getContext("2d");
+        if (animeChart instanceof Chart) {
+          animeChart.destroy();
+        }
+        animeChart = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels: labels,
+            datasets: [{
+              label: "Punteggio",
+              data: scores,
+              backgroundColor: "rgba(54, 162, 235, 0.6)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+      
+      /* ===== DETAIL MODAL (Full Screen) ===== */
+      function openDetailModal(title, contentHTML) {
+        const modalTitle = document.getElementById("detailModalLabel");
+        const modalBody = document.getElementById("modalBodyContent");
+        modalTitle.textContent = title;
+        modalBody.innerHTML = contentHTML;
+        const modalElem = document.getElementById("detailModal");
+        const modal = new bootstrap.Modal(modalElem, { backdrop: "static" });
+        modal.show();
+      }
+      
+      /* ===== Load Anime Details via Jikan API ===== */
+      async function loadAnimeDetails(mal_id) {
+        try {
+          const response = await fetch("https://api.jikan.moe/v4/anime/" + mal_id);
+          if (!response.ok) throw new Error("Errore nel caricamento dei dettagli: " + response.status);
+          const data = await response.json();
+          const anime = data.data;
+          const title = anime.title || "N/D";
+          const score = anime.score || "N/D";
+          const episodes = anime.episodes || "N/D";
+          const synopsis = anime.synopsis || "Nessuna descrizione disponibile.";
+          const genres = anime.genres.map(g => g.name).join(", ");
+          const link = anime.url;
+          let detailHtml = `<h2>${escapeHtml(title)}</h2>
+                            <p><strong>Punteggio:</strong> ${score}</p>
+                            <p><strong>Episodi:</strong> ${episodes}</p>
+                            <p><strong>Generi:</strong> ${escapeHtml(genres)}</p>
+                            <p><strong>Sinossi:</strong><br>${escapeHtml(synopsis)}</p>
+                            <p><a href="${link}" target="_blank" class="btn btn-sm btn-primary">Visualizza su MyAnimeList</a></p>`;
+          openDetailModal(title, detailHtml);
+        } catch (error) {
+          console.error(error);
+          openDetailModal("Errore", `<p class="text-danger">${error.message}</p>`);
+        }
+      }
+      
+      /* ===== Utility: Escape HTML Characters ===== */
+      function escapeHtml(text) {
+        if (typeof text !== "string") return text;
+        const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+        return text.replace(/[&<>"']/g, m => map[m]);
+      }
+      
+      /* ===== Reset Detail Modal on Close ===== */
+      document.getElementById("detailModal").addEventListener("hidden.bs.modal", function() {
+        document.getElementById("modalBodyContent").innerHTML = "";
+        document.body.style.overflow = "auto";
+        document.body.classList.remove("modal-open");
+        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
+      });
+      
+      /* ===== EVENT LISTENERS for Search & Sorting ===== */
+      document.getElementById("btnTop").addEventListener("click", loadTopAnime);
+      document.getElementById("btnSearch").addEventListener("click", function() {
+        const query = document.getElementById("queryInput").value.trim();
+        if (query.length === 0) return;
+        searchAnime(query);
+      });
+      document.getElementById("btnScore").addEventListener("click", sortByScore);
+      document.getElementById("btnTitle").addEventListener("click", sortByTitle);
+      document.getElementById("btnEpisodes").addEventListener("click", sortByEpisodes);
+      
+      document.getElementById("eventSearchBtn").addEventListener("click", function () {
+        const query = document.getElementById("eventSearchInput").value.toLowerCase();
+        const filtered = eventsData.filter(ev =>
+          ev.title.toLowerCase().includes(query) ||
+          ev.description.toLowerCase().includes(query)
+        );
+        renderListView(filtered);
+      });
+      
+      document.getElementById("clientSearchBtn").addEventListener("click", function () {
+        const query = document.getElementById("clientSearchInput").value.toLowerCase();
+        const filtered = agendaData.filter(client =>
+          client.name.toLowerCase().includes(query) ||
+          client.phone.toLowerCase().includes(query) ||
+          client.address.toLowerCase().includes(query) ||
+          (client.extra && client.extra.toLowerCase().includes(query))
+        );
+        renderAgenda(filtered);
+      });
+      
+      /* ===== TAB NAVIGATION ===== */
+      const mainTabs = document.getElementById("mainTabs");
+      mainTabs.addEventListener("click", function (e) {
+        const targetTab = e.target.closest(".nav-link");
+        if (!targetTab) return;
+        Array.from(mainTabs.children).forEach(li => li.querySelector(".nav-link").classList.remove("active"));
+        targetTab.classList.add("active");
+        document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+        const secId = targetTab.getAttribute("data-target");
+        document.getElementById(secId).classList.add("active");
+        if (secId === "calendarView") { initializeCalendar(); }
+        else if (secId === "listView") { renderListView(); }
+        else if (secId === "yearView") { initializeYearView(); }
+        else if (secId === "agendaView") { renderAgenda(); }
+      });
+      
+      /* ===== INITIALIZATION ===== */
+      updateViews();
+      
+      function updateViews() {
+        initializeCalendar();
+        renderListView();
+        if (document.getElementById("yearView").classList.contains("active")) {
+          initializeYearView();
+        }
+      }
+    }); // End DOMContentLoaded
+  </script>
+</body>
+</html>
