@@ -60,12 +60,12 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
-    .search-controls button, 
+    .search-controls button,
     .search-container button,
     .controls button {
       margin: 0 5px;
     }
-    /* Anime Cards - Uniform; 4 per row */
+    /* Anime Cards - Uniform, 4 per row */
     .anime-card {
       background-color: #fff;
       border: 1px solid #dee2e6;
@@ -93,14 +93,14 @@
     /* Night Mode */
     body.night .anime-card {
       background-color: #343a40;
-      border: 1px solid #495057;
+      border-color: #495057;
       color: #f8f9fa;
     }
     body.night .modal-content {
       background-color: #343a40;
       color: #f8f9fa;
     }
-    /* Chart */
+    /* Chart Container */
     #chartContainer {
       margin-bottom: 20px;
       height: 300px;
@@ -111,9 +111,9 @@
       margin-top: 20px;
       text-align: center;
     }
-    /* Modal Full Screen */
+    /* Fullscreen Detail Modal */
     .modal-fullscreen {
-      /* Bootstrap 5 provides this class */
+      /* Bootstrap 5 already definisce questo stile */
     }
     /* Footer */
     footer {
@@ -156,7 +156,7 @@
         <canvas id="animeChart"></canvas>
       </div>
       
-      <!-- Anime Cards Container (4 per row, paginazione 20 risultati per pagina) -->
+      <!-- Anime Cards Container (4 per row, 20 per page) -->
       <div id="animeContainer" class="row"></div>
       
       <!-- Pagination -->
@@ -164,9 +164,9 @@
         <ul id="paginationContainer" class="pagination justify-content-center"></ul>
       </nav>
       
-      <!-- List View Search -->
+      <!-- List View Search (facoltativo per filtrare localmente) -->
       <div class="search-container">
-        <input type="text" id="eventSearchInput" class="form-control" placeholder="Search events...">
+        <input type="text" id="eventSearchInput" class="form-control" placeholder="Filter results...">
         <button id="eventSearchBtn" class="btn btn-secondary mt-2">Search</button>
       </div>
     </div>
@@ -186,7 +186,7 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
         </div>
         <div class="modal-body" id="modalBodyContent">
-          <!-- Contenuto dettagliato caricato dinamicamente -->
+          <!-- Le informazioni dettagliate verranno visualizzate qui -->
         </div>
       </div>
     </div>
@@ -197,25 +197,25 @@
   
   <!-- MAIN JS -->
   <script>
-    /***********************************************
+    /****************************************************
      * Anime Explorer – Final One-Page Application
-     * Using Jikan API (free & open; accumulating up to ~400 results)
-     * Layout: 4 cards per row, 20 results per page.
-     * Sorting, search, pagination and full-screen detail modal ("Leggi di più") implemented.
+     * Using Jikan API (free, up to ~400 results)
+     * Layout: 4 cards per row, 20 per page
+     * Sorting, search and full-screen detail modal ("Leggi di più")
      * Author: Bocaletto Luca
-     ***********************************************/
+     ****************************************************/
     document.addEventListener("DOMContentLoaded", function() {
-      // GLOBAL VARIABLES
+      // Global Variables
       let animeData = [];
       let currentSortedData = [];
       let currentPage = 1;
       const pageSize = 20;
       let animeChart;
       
-      // Set current year in footer
+      // Set current year
       document.getElementById("currentYear").textContent = new Date().getFullYear();
       
-      // Theme Toggle
+      // Theme toggle
       const themeToggle = document.getElementById("themeToggle");
       const themeText = document.getElementById("themeText");
       themeToggle.addEventListener("change", function() {
@@ -228,20 +228,19 @@
         }
       });
       
-      /* ===== API FUNCTIONS ===== */
-      // Implementa il caricamento dei Top Anime combinando più pagine (fino a 400 risultati)
+      /* === API FUNCTIONS === */
       async function loadTopAnime() {
         try {
           let page = 1, results = [];
-          // Itera finché abbiamo meno di 400 risultati oppure finché la pagina non torna dati vuoti
-          while(page <= 16) { // 16*25 = 400 (25 è il default per Jikan v4)
+          // Jikan API default: 25 per pagina; iteriamo fino a 16 pagine per ottenere circa 400 risultati
+          while (page <= 16) {
             const response = await fetch("https://api.jikan.moe/v4/top/anime?page=" + page);
             if (!response.ok) {
               console.error("Errore nella pagina " + page + ": " + response.status);
               break;
             }
             const data = await response.json();
-            if(data.data.length === 0) break;
+            if (data.data.length === 0) break;
             results = results.concat(data.data);
             page++;
           }
@@ -253,7 +252,6 @@
         }
       }
       
-      // Search Anime by Title using Jikan API
       async function searchAnime(query) {
         try {
           const response = await fetch("https://api.jikan.moe/v4/anime?q=" + encodeURIComponent(query) + "&limit=25");
@@ -267,7 +265,7 @@
         }
       }
       
-      /* ===== Sorting FUNCTIONS ===== */
+      /* === SORTING FUNCTIONS === */
       function sortByScore() {
         const sorted = animeData.slice().sort((a, b) => (b.score || 0) - (a.score || 0));
         updateSortedData(sorted);
@@ -288,7 +286,7 @@
         updateChart(sortedArray);
       }
       
-      /* ===== PAGINATION ===== */
+      /* === PAGINATION === */
       function displayPage() {
         const startIdx = (currentPage - 1) * pageSize;
         const pageData = currentSortedData.slice(startIdx, startIdx + pageSize);
@@ -322,7 +320,7 @@
         displayPage();
       }
       
-      /* ===== Display Anime Cards (4 columns layout) ===== */
+      /* === DISPLAY ANIME CARDS (4 per row) === */
       function displayAnimeCards(dataArray) {
         const container = document.getElementById("animeContainer");
         container.innerHTML = "";
@@ -357,7 +355,7 @@
         container.appendChild(row);
       }
       
-      /* ===== Chart Update (Top 10 per Score) ===== */
+      /* === UPDATE CHART (Top 10 by Score) === */
       function updateChart(dataArray) {
         const top10 = dataArray.slice().sort((a, b) => (b.score || 0) - (a.score || 0)).slice(0,10);
         const labels = top10.map(a => a.title.substring(0,20) + (a.title.length > 20 ? "..." : ""));
@@ -386,18 +384,18 @@
         });
       }
       
-      /* ===== DETAIL MODAL (Full Screen) ===== */
+      /* === DETAIL MODAL (Fullscreen) === */
       function openDetailModal(title, contentHTML) {
         const modalTitle = document.getElementById("detailModalLabel");
-        const modalBody = document.getElementById("modalBodyContent");
+        const modalBody  = document.getElementById("modalBodyContent");
         modalTitle.textContent = title;
-        modalBody.innerHTML = contentHTML;
+        modalBody.innerHTML    = contentHTML;
         const modalElem = document.getElementById("detailModal");
         const modal = new bootstrap.Modal(modalElem, { backdrop: "static" });
         modal.show();
       }
       
-      /* ===== Load Anime Details via Jikan API ===== */
+      /* === LOAD ANIME DETAILS VIA JIKAN API === */
       async function loadAnimeDetails(mal_id) {
         try {
           const response = await fetch("https://api.jikan.moe/v4/anime/" + mal_id);
@@ -423,22 +421,20 @@
         }
       }
       
-      /* ===== Utility: Escape HTML Characters ===== */
+      /* === UTILITY: Escape HTML Characters === */
       function escapeHtml(text) {
         if (typeof text !== "string") return text;
         const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
         return text.replace(/[&<>"']/g, m => map[m]);
       }
       
-      /* ===== Reset Detail Modal on Close ===== */
+      /* === RESET DETAIL MODAL on Close === */
       document.getElementById("detailModal").addEventListener("hidden.bs.modal", function() {
         document.getElementById("modalBodyContent").innerHTML = "";
         document.body.style.overflow = "auto";
-        document.body.classList.remove("modal-open");
-        document.querySelectorAll(".modal-backdrop").forEach(el => el.remove());
       });
       
-      /* ===== EVENT LISTENERS for Search & Sorting ===== */
+      /* === EVENT LISTENERS for Search & Sorting ==== */
       document.getElementById("btnTop").addEventListener("click", loadTopAnime);
       document.getElementById("btnSearch").addEventListener("click", function() {
         const query = document.getElementById("queryInput").value.trim();
@@ -451,51 +447,26 @@
       
       document.getElementById("eventSearchBtn").addEventListener("click", function () {
         const query = document.getElementById("eventSearchInput").value.toLowerCase();
-        const filtered = eventsData.filter(ev =>
+        const filtered = animeData.filter(ev =>
           ev.title.toLowerCase().includes(query) ||
-          ev.description.toLowerCase().includes(query)
+          ev.synopsis.toLowerCase().includes(query)
         );
-        renderListView(filtered);
-      });
-      
-      document.getElementById("clientSearchBtn").addEventListener("click", function () {
-        const query = document.getElementById("clientSearchInput").value.toLowerCase();
-        const filtered = agendaData.filter(client =>
-          client.name.toLowerCase().includes(query) ||
-          client.phone.toLowerCase().includes(query) ||
-          client.address.toLowerCase().includes(query) ||
-          (client.extra && client.extra.toLowerCase().includes(query))
-        );
-        renderAgenda(filtered);
-      });
-      
-      /* ===== TAB NAVIGATION ===== */
-      const mainTabs = document.getElementById("mainTabs");
-      mainTabs.addEventListener("click", function (e) {
-        const targetTab = e.target.closest(".nav-link");
-        if (!targetTab) return;
-        Array.from(mainTabs.children).forEach(li => li.querySelector(".nav-link").classList.remove("active"));
-        targetTab.classList.add("active");
-        document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
-        const secId = targetTab.getAttribute("data-target");
-        document.getElementById(secId).classList.add("active");
-        if (secId === "calendarView") { initializeCalendar(); }
-        else if (secId === "listView") { renderListView(); }
-        else if (secId === "yearView") { initializeYearView(); }
-        else if (secId === "agendaView") { renderAgenda(); }
+        displayAnimeCards(filtered);
       });
       
       /* ===== INITIALIZATION ===== */
+      function updateViews() {
+        // Visualizzazione iniziale: Top Anime
+        loadTopAnime();
+      }
+      
       updateViews();
       
-      function updateViews() {
-        initializeCalendar();
-        renderListView();
-        if (document.getElementById("yearView").classList.contains("active")) {
-          initializeYearView();
-        }
-      }
-    }); // End DOMContentLoaded
+      // Esponi le funzioni globalmente per l'utilizzo in attributi inline
+      window.loadAnimeDetails = loadAnimeDetails;
+      window.escapeHtml = escapeHtml;
+      window.changePage = changePage;
+    });
   </script>
 </body>
 </html>
