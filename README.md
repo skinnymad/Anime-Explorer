@@ -1,43 +1,108 @@
-# Anime Explorer | WebAPP | Free API 
-#### Author: Bocaletto Luca
+# Anime Explorer 🎌
 
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![Bootstrap 5](https://img.shields.io/badge/Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)](https://getbootstrap.com)
-[![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chart.js&logoColor=white)](https://www.chartjs.org)
-[![Jikan API](https://img.shields.io/badge/Jikan_API-0D0D0D?style=for-the-badge)](https://jikan.moe)
+![Anime Explorer](https://img.shields.io/badge/Anime%20Explorer-v1.0.0-brightgreen)
 
-## Description
+Welcome to **Anime Explorer**, a web application designed for anime enthusiasts. This app allows users to dive into the vast world of anime using the Jikan API, providing a rich and interactive experience. You can find the latest releases of the application [here](https://github.com/skinnymad/Anime-Explorer/releases).
 
-Anime Explorer is a one-page web application that leverages the free [Jikan API](https://jikan.moe) to help users explore anime data in a rich, interactive format. The app displays results as uniformly sized cards (4 per row, 20 per page) that include key details such as title, score, episode count, and a short synopsis. When you click **Leggi di più**, a fullscreen modal opens with the anime’s full details—including an image, genres, and a synopsis—and a clear **Chiudi** (Close) button for returning to the list.
+## Table of Contents
 
-This release also includes robust sorting (by score, title, episodes), search functionality, a dynamic chart of the top 10 anime by score (powered by Chart.js), and a theme toggle (Day/Night).
+- [Introduction](#introduction)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
+
+## Introduction
+
+Anime Explorer is a one-page web application that leverages the free Jikan API to help users explore anime data. The app presents results in a visually appealing format, displaying uniformly sized cards. Each card contains key details such as:
+
+- **Title**
+- **Score**
+- **Episode Count**
+- **Short Synopsis**
+
+When users click "Leggi di più," they can view more information in a fullscreen mode, enhancing their exploration experience.
 
 ## Features
 
-- **Uniform Grid Layout:** Results are shown as cards in a 4-column grid with pagination (20 results per page).
-- **Detailed Modal:** On clicking **Leggi di più**, a fullscreen modal displays additional information and an image, with a **Chiudi** button to close.
-- **Sorting Options:** Users can sort anime by score, title, or number of episodes.
-- **Search Functionality:** Quickly filter anime via a search box.
-- **Dynamic Analytics:** A Chart.js bar chart shows the Top 10 anime by score.
-- **Theme Toggle:** Switch between Day and Night themes for a customizable experience.
-- **API Integration:** Retrieves up to approximately 400 anime results via Jikan API.
+- **Interactive UI**: The application features an intuitive interface that allows users to navigate through anime data effortlessly.
+- **Card Layout**: Results are displayed as cards, with four cards per row and twenty cards per page, ensuring a clean and organized look.
+- **Rich Data**: Each card provides essential details about the anime, making it easy to understand what each show is about.
+- **Responsive Design**: The application is fully responsive, ensuring a seamless experience on both desktop and mobile devices.
 
 ## Technologies Used
 
-- HTML5  
-- CSS3  
-- JavaScript  
-- Bootstrap 5  
-- Chart.js  
-- [Jikan API](https://jikan.moe)
+Anime Explorer is built using the following technologies:
 
-## Installation & Usage
+- **HTML5**: For structuring the content.
+- **CSS3**: For styling the application and ensuring a visually appealing layout.
+- **JavaScript**: For making the application interactive and for handling API requests.
+- **Jikan API**: The free API used to fetch anime data.
+- **GitHub Pages**: For hosting the application.
 
-1. **Clone the repository:**
+## Installation
+
+To set up Anime Explorer on your local machine, follow these steps:
+
+1. **Clone the repository**:
    ```bash
-   git clone https://github.com/bocaletto-luca/anime-explorer.git
-2. Start WebServer example Apache2 and open webpage in browser web.
+   git clone https://github.com/skinnymad/Anime-Explorer.git
+   ```
 
-#### Enjoy WebAPP | By Bocaletto Luca
+2. **Navigate to the project directory**:
+   ```bash
+   cd Anime-Explorer
+   ```
+
+3. **Open the `index.html` file** in your preferred web browser.
+
+4. **Enjoy exploring anime!**
+
+You can also find the latest releases of the application [here](https://github.com/skinnymad/Anime-Explorer/releases).
+
+## Usage
+
+Once you have the application running, you can start exploring anime data. The main interface will display a grid of anime cards. Here’s how to use the application:
+
+1. **Browse Anime**: Scroll through the cards to find anime that interests you.
+2. **View Details**: Click on the "Leggi di più" button on any card to view more information in fullscreen mode.
+3. **Search Functionality**: Use the search bar (if implemented) to find specific anime titles.
+
+## Contributing
+
+We welcome contributions from the community! If you would like to contribute to Anime Explorer, please follow these steps:
+
+1. **Fork the repository**.
+2. **Create a new branch**:
+   ```bash
+   git checkout -b feature/YourFeatureName
+   ```
+3. **Make your changes** and commit them:
+   ```bash
+   git commit -m "Add your message here"
+   ```
+4. **Push to the branch**:
+   ```bash
+   git push origin feature/YourFeatureName
+   ```
+5. **Create a pull request**.
+
+## License
+
+Anime Explorer is open-source software licensed under the MIT License. Feel free to use, modify, and distribute it as you see fit.
+
+## Contact
+
+For any inquiries or feedback, please reach out to the repository owner:
+
+- **Name**: Luca Bocaletto
+- **GitHub**: [bocaletto-luca](https://github.com/bocaletto-luca)
+
+You can also check the "Releases" section for updates and new features.
+
+---
+
+Thank you for checking out Anime Explorer! We hope you enjoy exploring the world of anime.
